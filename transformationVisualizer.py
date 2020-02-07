@@ -5,7 +5,8 @@ import numpy as np
 class TransformationVisualizer:
 
     def __init__(self, transformations, classes = None, colors = None, 
-        frames_per_transformation = 10, frames_per_transition = 100, axes_name = ("X", "Y")):
+        frames_per_transformation = 50, frames_per_transition = 100, axes_name = ("X", "Y"),
+        titles = None):
         """
             Visualizer
             
@@ -22,9 +23,10 @@ class TransformationVisualizer:
                     transformations matrix (default: {None: No classes})
                 colors {Dict} -- Dictionary of colors to associated to each classes 
                     (same keys than classes)
-                frames_per_transformation {int} -- Number of frames per transformation (default: {10})
-                frames_per_transition {int} -- Number of frames between transformation (default: {10})
+                frames_per_transformation {int} -- Number of frames per transformation (default: {100})
+                frames_per_transition {int} -- Number of frames between transformation (default: {50})
                 axes_name {(string, string)} -- Names to display
+                titles {List string} -- List of titles to display
         """
         # Some non exhaustive checks
         assert len(transformations) > 0, "No animation needed"
@@ -37,6 +39,7 @@ class TransformationVisualizer:
         self.animation = animation.FuncAnimation(fig, self._animate_, init_func = self._init_, frames = self.total_frames, interval = 20)
 
         self.transformations = transformations
+        self.titles = [str(i) for i in range(len(transformations))] if titles is None else titles
         self.current_transformation = 0
         self.xlim, self.ylim = self._compute_limits_(transformations)
         self.xlabel, self.ylabel = axes_name
@@ -48,6 +51,7 @@ class TransformationVisualizer:
         """
         self.current_transformation = 0
         self._clear_()
+        self.ax.set_title(self.titles[self.current_transformation])
         self.scatter = self.ax.scatter(self.transformations[0][:,0], self.transformations[0][:,1], c = self.colors, alpha = 0.5)
         return (self.scatter, )
 
@@ -77,18 +81,21 @@ class TransformationVisualizer:
             next_xs, next_ys = self.transformations[next_transformation][:, 0], \
                 self.transformations[next_transformation][:, 1]
 
+            title = "{} -> {}".format(self.titles[self.current_transformation], self.titles[next_transformation])
             num_after_t = i - (until_current + self.frames_per_transformation)
             ratio = (self.frames_per_transition - num_after_t) / self.frames_per_transition
             xs = ratio * current_xs + (1 - ratio) * next_xs
             ys = ratio * current_ys + (1 - ratio) * next_ys
         else:
             self.current_transformation = next_transformation
+            title = self.titles[self.current_transformation]
             xs, ys = self.transformations[self.current_transformation][:, 0], \
                 self.transformations[self.current_transformation][:, 1]
+            
         
         self._clear_()
         self.scatter = self.ax.scatter(xs, ys, c = self.colors, alpha = 0.5)
-
+        self.ax.set_title(title)
         return (self.scatter,)
 
     def _compute_limits_(self, transformations):
