@@ -70,8 +70,7 @@ class TransformationVisualizer:
         until_current = self.current_transformation * (self.frames_per_transformation + self.frames_per_transition)
         next_transformation = (self.current_transformation + 1) % len(self.transformations)
         if i < until_current + self.frames_per_transformation:
-            xs, ys = self.transformations[self.current_transformation][:, 0], \
-                self.transformations[self.current_transformation][:, 1]
+            return (self.scatter,)
         elif i < until_current + self.frames_per_transformation + self.frames_per_transition:
             current_xs, current_ys = self.transformations[self.current_transformation][:, 0], \
                 self.transformations[self.current_transformation][:, 1]
