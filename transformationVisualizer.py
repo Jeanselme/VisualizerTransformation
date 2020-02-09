@@ -36,7 +36,6 @@ class TransformationVisualizer:
         self.scatter = None
         self.frames_per_transformation, self.frames_per_transition = frames_per_transformation, frames_per_transition
         self.total_frames = (frames_per_transformation + frames_per_transition) * len(transformations)
-        self.animation = animation.FuncAnimation(fig, self._animate_, init_func = self._init_, frames = self.total_frames, interval = 20)
 
         self.transformations = transformations
         self.titles = [str(i) for i in range(len(transformations))] if titles is None else titles
@@ -44,6 +43,8 @@ class TransformationVisualizer:
         self.xlim, self.ylim = self._compute_limits_(transformations)
         self.xlabel, self.ylabel = axes_name
         self.colors = colors if colors is None else [colors[p] for p in self.transformations[0][:, 2]]
+
+        self.animation = animation.FuncAnimation(fig, self._animate_, init_func = self._init_, frames = self.total_frames, interval = 20)
 
     def _init_(self):
         """
@@ -98,7 +99,7 @@ class TransformationVisualizer:
         self.ax.set_title(title)
         return (self.scatter,)
 
-    def _compute_limits_(self, transformations):
+    def _compute_limits_(self, transformations, epsilon = 0.1):
         """
             Computes the limits of the figure
             
@@ -112,7 +113,7 @@ class TransformationVisualizer:
         xmin, xmax = min([min(t[:, 0]) for t in transformations]), max([max(t[:, 0]) for t in transformations])
         ymin, ymax = min([min(t[:, 1]) for t in transformations]), max([max(t[:, 1]) for t in transformations])
 
-        return (xmin, xmax), (ymin, ymax)
+        return (xmin - epsilon, xmax + epsilon), (ymin - epsilon, ymax + epsilon)
 
     def save_gif(self, gifname, fps = 60):
         """
