@@ -2,7 +2,7 @@
 Create a gif animation for data transformation
 
 ## Example
-The jupyter notebook `Example.ipynb` presents a simple example on the iris, digit and [pairwise distance](https://people.sc.fsu.edu/~jburkardt/datasets/cities/cities.html) datasets.  
+The jupyter notebook `Example.ipynb` presents a simple example on the iris, digit and [pairwise distance](https://people.sc.fsu.edu/~jburkardt/datasets/cities/cities.html) datasets. First, we display the data on the most predictive axis of the original data, then on PCA projections then on TSNE, we observe how the different classes are separated from one tranformation to another. We min max normalize the data for better visualization.    
 It will produce the following gif images:    
 ![GifIris](https://raw.githubusercontent.com/Jeanselme/VisualizerTransformation/master/images/iris.gif)  
 ![GifDigit](https://raw.githubusercontent.com/Jeanselme/VisualizerTransformation/master/images/digit.gif)  
