@@ -110,9 +110,8 @@ class Visualizer:
 
 class TransformationVisualizer(Visualizer):
 
-    def __init__(self, transformations, classes = None, colors = None, 
-        frames_per_transformation = 50, frames_per_transition = 100, axes_name = ("X", "Y"),
-        titles = None):
+    def __init__(self, transformations, frames_per_transformation = 50, 
+        frames_per_transition = 100, axes_name = ("", ""), titles = None, legend = False):
         """
             Visualizer
             
@@ -125,10 +124,6 @@ class TransformationVisualizer(Visualizer):
                     Column 2 -> Classes (must match classes dictionary)
             
             Keyword Arguments:
-                classes {Dict} -- Dictionary of classes associated a name to the classes present in 
-                    transformations matrix (default: {None: No classes})
-                colors {Dict} -- Dictionary of colors to associated to each classes 
-                    (same keys than classes)
                 frames_per_transformation {int} -- Number of frames per transformation (default: {100})
                 frames_per_transition {int} -- Number of frames between transformation (default: {50})
                 axes_name {(string, string)} -- Names to display
@@ -148,7 +143,7 @@ class TransformationVisualizer(Visualizer):
         self.current_transformation = 0
         self.xlim, self.ylim = self._compute_limits_(transformations)
         self.xlabel, self.ylabel = axes_name
-        self.colors = colors if colors is None else [colors[p] for p in self.transformations[0][:, 2]]
+        self.legend = legend
 
         self.animation = animation.FuncAnimation(fig, self._animate_, init_func = self._init_, frames = self.total_frames, interval = 20)
 
@@ -159,7 +154,10 @@ class TransformationVisualizer(Visualizer):
         self.current_transformation = 0
         self._clear_()
         self.ax.set_title(self.titles[self.current_transformation])
-        self.scatter = self.ax.scatter(self.transformations[0][:,0], self.transformations[0][:,1], c = self.colors, alpha = 0.5)
+        self.scatter = self.ax.scatter(self.transformations[0][:,0], self.transformations[0][:,1], c = self._colors_(0), alpha = 0.5)
+        if self.legend:
+            self.ax.legend(*self.scatter.legend_elements(), bbox_to_anchor=(1.04,1), loc="upper left", title="Classes")
+            plt.tight_layout()
         return (self.scatter, )
     
     def _animate_(self, i):
@@ -191,8 +189,11 @@ class TransformationVisualizer(Visualizer):
             
         
         self._clear_()
-        self.scatter = self.ax.scatter(xs, ys, c = self.colors, alpha = 0.5)
+        self.scatter = self.ax.scatter(xs, ys, c = self._colors_(self.current_transformation), alpha = 0.5)
         self.ax.set_title(title)
+        if self.legend:
+            self.ax.legend(*self.scatter.legend_elements(), bbox_to_anchor=(1.04,1), loc="upper left", title="Classes")
+            plt.tight_layout()
         return (self.scatter,)
 
     def _compute_limits_(self, transformations, epsilon = 0.1):
@@ -210,3 +211,17 @@ class TransformationVisualizer(Visualizer):
         ymin, ymax = min([min(t[:, 1]) for t in transformations]), max([max(t[:, 1]) for t in transformations])
 
         return (xmin - epsilon, xmax + epsilon), (ymin - epsilon, ymax + epsilon)
+    
+    def _colors_(self, i):
+        """
+            Returns labels for the current transformation
+            
+            Arguments:
+                i {int} -- Iteration
+        """
+        if self.legend:
+            if self.transformations[i].shape[1] == 3:
+                return self.transformations[i][:, 2]
+            elif self.transformations[0].shape[1] == 3:
+                return self.transformations[0][:, 2]
+        return None
